@@ -1,0 +1,50 @@
+
+.container-github-login{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.github-login-title{
+    
+}
+
+.git-hub-inline-group{
+    display: flex;
+    /* justify-items: center; */
+    justify-content: center;
+    width: 100%;
+}
+
+* {
+    margin:0;
+    padding:0;
+}
+
+.content-container{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.content-header {
+    background: rgb(0, 119, 255);
+    height: 80px;
+    align-self: flex-start;
+}
+
+.content-content {
+    flex-grow: 1;
+    background: rgb(192, 237, 255);
+}
+
+.content-footer {
+    height: 40px;
+    background: aqua;
+    align-self: flex-end;
+}
+
+body, html {
+    height: 100%;
+}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <title>Tag Manager</title>
+    {% include 'parciais/_head.html' %}
+</head>
+
+<body>
+<div class="content-container">
+    {% include 'parciais/_nav.html' %}
+
+    <!--  if 'accounts' not in request.path -->
+    <!-- Page Content -->
+    <div class="content-content">
+        <div>
+            <div>
+                {% block conteudo %}{% endblock %}
+            </div>
+        </div>
+    </div>
+{% include 'parciais/_footer.html' %}
+</div>
+
+</body>
+
+</html>
