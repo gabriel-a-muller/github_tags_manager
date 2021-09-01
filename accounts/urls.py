@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from . import views
 
 urlpatterns = [
@@ -6,6 +6,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('logout/', views.logout, name='logout'),
     path('register/', views.register, name='register'),
-    path('dashboard/', views.dashboard, name='dashboard'),
-    path('social-auth/', include('social_django.urls', namespace='social')),
+    path('home/', views.home, name='home'),
+    re_path(r'settings/$', views.settings, name='settings'),
+    re_path(r'^settings/password/$', views.password, name='password'),
 ]
