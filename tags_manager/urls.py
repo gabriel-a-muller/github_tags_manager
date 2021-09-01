@@ -21,6 +21,7 @@ from tags_manager import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accounts.urls')),
+    path('', include('repository.urls')),
     path('social-auth/', include('social_django.urls', namespace='social')),
 ]
 

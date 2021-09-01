@@ -38,6 +38,7 @@ sys.modules['fontawesome_free'] = __import__('fontawesome-free')
 INSTALLED_APPS = [
     'social_django',
     'authenticator',
+    'repository',
     'accounts.apps.AccountsConfig',
     'fontawesome_free',
 

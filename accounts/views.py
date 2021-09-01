@@ -7,7 +7,10 @@ from social_django.utils import psa
 from social_django.models import UserSocialAuth
 
 def login(request):
-    return render(request, 'accounts/login.html')
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        return render(request, 'accounts/login.html')
 
 @login_required(redirect_field_name='login')
 def logout(request):
@@ -16,19 +19,6 @@ def logout(request):
 
 def register(request):
     return render(request, 'accounts/register.html')
-
-@login_required(redirect_field_name='login')
-def home(request):
-    user = request.user
-
-    try:
-        github_login = user.social_auth.get(provider='github')
-    except UserSocialAuth.DoesNotExist:
-        github_login = None
-
-    return render(request, 'accounts/home.html', {
-        'github_login': github_login
-    })
 
 @login_required(redirect_field_name='login')
 def settings(request):
