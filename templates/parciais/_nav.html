@@ -11,6 +11,14 @@
                 <input name="termo" value="" class="form-control mr-sm-2" type="search" placeholder="Pesquisar"
                        aria-label="Search">
             </form>
+            <ul class="navbar-nav ml-auto">
+            {% if request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="/logout" class="btn btn-danger">Logout</a>
+                </li>
+            {% endif %}
+            </ul>
+            
         </div>
     </div>
 </nav>

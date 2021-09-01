@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib import messages
+from django.contrib import messages, auth
 from django.contrib.auth.forms import AdminPasswordChangeForm, PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash, login
 from django.contrib.auth.decorators import login_required
@@ -9,18 +9,28 @@ from social_django.models import UserSocialAuth
 def login(request):
     return render(request, 'accounts/login.html')
 
-@login_required
+@login_required(redirect_field_name='login')
 def logout(request):
-    return render(request, 'accounts/logout.html')
+    auth.logout(request)
+    return redirect('login')
 
 def register(request):
     return render(request, 'accounts/register.html')
 
-@login_required
+@login_required(redirect_field_name='login')
 def home(request):
-    return render(request, 'accounts/home.html')
+    user = request.user
 
-@login_required
+    try:
+        github_login = user.social_auth.get(provider='github')
+    except UserSocialAuth.DoesNotExist:
+        github_login = None
+
+    return render(request, 'accounts/home.html', {
+        'github_login': github_login
+    })
+
+@login_required(redirect_field_name='login')
 def settings(request):
     user = request.user
 
@@ -36,7 +46,7 @@ def settings(request):
         'can_disconnect': can_disconnect
     })
 
-@login_required
+@login_required(redirect_field_name='login')
 def password(request):
     if request.user.has_usable_password():
         PasswordForm = PasswordChangeForm
