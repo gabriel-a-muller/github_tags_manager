@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
+{% include 'parciais/_messages.html' %}
 <h2>Homepage</h2>
 <p>Hello <a href="https://github.com/{{ github_login.extra_data.login }}/" target="_blank">{{ github_login.extra_data.login }}</a></p>
 <!--<p>Hello {{user.username}}!</p>>-->
