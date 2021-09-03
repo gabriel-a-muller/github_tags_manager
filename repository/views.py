@@ -1,9 +1,12 @@
 import requests
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from social_django.models import UserSocialAuth
+from taggit.models import Tag
 
+from . forms import RepositoryForm
 from . models import Repository
 
 def request_starred_repos(request, user):
@@ -21,20 +24,26 @@ def request_starred_repos(request, user):
 
     # For each starred repo
     for s_repo in starred_repos.json():
-        repo = Repository.objects.get(repo_id=s_repo['id'], user_id=user)
+        try:
+            repo = Repository.objects.get(repo_id=s_repo['id'], user=user)
+        except:
+            repo = None
         # Check if not exists before creating new record
         if not repo:
             repo = Repository.objects.create_repository(
                 s_repo['name'],
                 user,
                 s_repo['id'],
-                s_repo['description']
+                s_repo['description'],
+                s_repo['created_at'][0:10]
             )
             repo.save()
+
         # Check if repo name was changed
         elif repo.name != s_repo['name']:
             repo.name = s_repo['name']
             repo.save()
+
         # Check if repo description was changed
         elif repo.description != s_repo['description']:
             repo.description = s_repo['description']
@@ -42,16 +51,52 @@ def request_starred_repos(request, user):
 
 
 @login_required(redirect_field_name='login')
-def home(request):
+def home_populate_repos(request):
     user = request.user
 
     request_starred_repos(request, user)
 
+    return redirect('home_view')
+
+
+def register_tag(request, repo_id):
+    if request.method == 'POST':
+        print("REPO_ID: ", repo_id)
+        instance = Repository.objects.get(repo_id=repo_id)
+        form = RepositoryForm(request.POST or None, instance=instance)
+        if form.is_valid():
+            repo = form.save(commit=False)
+            repo.save()
+            form.save_m2m()
+            print("SAVED!")
+        else:
+            print("NOT VALID")
+    return redirect('home_view')
+
+def home_view(request, repo_id=None):
+    user = request.user
     try:
         github_login = user.social_auth.get(provider='github')
     except UserSocialAuth.DoesNotExist:
         github_login = None
-
-    return render(request, 'accounts/home.html', {
+    repositories = Repository.objects.filter(user=user).order_by('-created_at_date')
+    common_tags = Repository.tags.most_common()[:4]
+    context = {
+        'repositories': repositories,
+        'common_tags': common_tags,
         'github_login': github_login
-    })
+    }
+
+    return render(request, 'repository/home_view.html', context)
+
+def tagged(request, slug):
+    tag = get_object_or_404(Tag, slug=slug)
+    print("SLUG: ", slug)
+    print("TAG: ", tag)
+    # Filter posts by tag name  
+    repositories = Repository.objects.filter(tags=tag)
+    context = {
+        'tag':tag,
+        'repositories': repositories,
+    }
+    return render(request, 'repository/home_view.html', context)

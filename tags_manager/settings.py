@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'repository',
     'accounts.apps.AccountsConfig',
     'fontawesome_free',
+    'taggit',
 
     'django.contrib.admin',
     'django.contrib.auth',

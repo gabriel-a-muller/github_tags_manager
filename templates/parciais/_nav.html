@@ -7,10 +7,12 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
+            {% if request.user.is_authenticated %}
             <form class="form-inline my-2 my-lg-0 ml-lg-4" action="/busca/">
                 <input name="termo" value="" class="form-control mr-sm-2" type="search" placeholder="Pesquisar"
                        aria-label="Search">
             </form>
+            {% endif %}
             <ul class="navbar-nav ml-auto">
             {% if request.user.is_authenticated %}
                 <li class="nav-item">
