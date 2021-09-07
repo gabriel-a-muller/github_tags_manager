@@ -101,10 +101,11 @@ def home_view(request):
 
 @login_required(redirect_field_name='login')
 def tagged(request, slug):
-    github_login = request.session['github_user'] if request.session['github_user'] else None
+    user = User.objects.get(username=request.session['github_user'])
     tag = get_object_or_404(Tag, slug=slug)
     # Filter posts by tag name
-    repositories = Repository.objects.filter(tags=tag)
+    repositories = Repository.objects.filter(
+        tags=tag, user=user).order_by('-created_at_date')
 
     paginator = Paginator(repositories, 6)
     page = request.GET.get('p')
@@ -114,7 +115,39 @@ def tagged(request, slug):
     context = {
         'tag':tag,
         'repositories': repositories,
-        'github_login': github_login,
+        'github_login': user,
         'common_tags': common_tags,
     }
-    return render(request, 'repository/home_view.html', context)
+    return render(request, 'repository/tagged.html', context)
+
+
+@login_required(redirect_field_name='login')
+def search(request):
+    term = request.GET.get('term')
+    user = User.objects.get(username=request.session['github_user'])
+
+    try:
+        tag = Tag.objects.get(name__icontains=str(term))
+    except:
+        tag = None
+
+    repositories = Repository.objects.filter(
+        user=user).order_by('-created_at_date')
+
+    if tag:
+        repositories = repositories.filter(tags=tag)
+    else:
+        repositories = repositories.filter(name__icontains=term)
+
+    paginator = Paginator(repositories, 6)
+    page = request.GET.get('p')
+    repositories = paginator.get_page(page)
+
+    common_tags = Repository.tags.most_common()[:5]
+    context = {
+        'repositories': repositories,
+        'common_tags': common_tags,
+        'github_login': user
+    }
+
+    return render(request, 'repository/search.html', context)

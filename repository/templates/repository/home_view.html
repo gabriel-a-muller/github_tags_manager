@@ -12,14 +12,14 @@
         {% if common_tags %}
             <p>Common Tags: 
             {% for mt in common_tags %}
-                <a href="{% url 'tagged' mt.slug %}" class="badge badge-success">{{mt}}</a>
+                <a href="{% url 'tagged' mt.slug %}" class="badge badge-info">{{mt}}</a>
             {% endfor %}
         {% endif %}
         </p>
         <div class="row mb-2 repositories">
                 {% for repo in repositories %}
                 <div class="col-md-6">
-                    <div class="cards">
+                    <div class="cards" style="background-color: #fefae0">
                         <div class="row no-gutters border rounded  flex-md-row mb-4 shadow-sm h-md-250">
                             <div class="col p-4 d-flex flex-column position-static">
                                 <h3 class="my-1"><a href="{{repo.url}}" target="_blank" >{{ repo.name }}</a></h3>

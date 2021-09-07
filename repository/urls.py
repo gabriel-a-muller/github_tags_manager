@@ -6,4 +6,5 @@ urlpatterns = [
     path('register_tag/<int:repo_id>', views.register_tag, name='register_tag'),
     path('home_view/', views.home_view, name='home_view'),
     path('tag/<slug:slug>/', views.tagged, name="tagged"),
+    path('search/', views.search, name='search'),
 ]
