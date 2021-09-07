@@ -4,7 +4,8 @@ from django.db.models.fields import (
     CharField,
     IntegerField,
     TextField,
-    DateField
+    DateField,
+    URLField
 )
 from django.db.models.fields.related import ForeignKey
 from django.contrib.auth.models import User
@@ -13,15 +14,15 @@ from taggit.managers import TaggableManager
 
 
 class RepositoryManager(models.Manager):
-    def create_repository(self, name, user, repo_id, description, created_date):
+    def create_repository(self, name, user, repo_id, description, created_date, url):
         repository = self.create(
             name=name,
             user=user,
             repo_id=repo_id,
             description=description,
-            created_at_date=created_date
+            created_at_date=created_date,
+            url=url
             )
-        # do something if needed
         return repository
 
 
@@ -32,10 +33,10 @@ class Repository(models.Model):
     description = TextField(null=True)
     created_at_date = DateField()
     tags = TaggableManager()
+    url = URLField(max_length=255)
 
     objects = RepositoryManager()
 
-    # repo = Repository.objects.create_repository(...)
 
     class Meta:
         constraints = [

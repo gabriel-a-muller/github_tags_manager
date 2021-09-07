@@ -23,8 +23,10 @@ def logout(request):
     auth.logout(request)
     return redirect('login')
 
+
 def register(request):
     return render(request, 'accounts/register.html')
+
 
 @login_required(redirect_field_name='login')
 def settings(request):
@@ -41,6 +43,7 @@ def settings(request):
         'github_login': github_login,
         'can_disconnect': can_disconnect
     })
+
 
 @login_required(redirect_field_name='login')
 def password(request):

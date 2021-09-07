@@ -1,8 +1,10 @@
+from django.core import paginator
 import requests
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator
 from taggit.models import Tag
 
 from . forms import RepositoryForm
@@ -34,7 +36,8 @@ def request_starred_repos(request, user):
                 user,
                 s_repo['id'],
                 s_repo['description'],
-                s_repo['created_at'][0:10]
+                s_repo['created_at'][0:10],
+                s_repo['html_url']
             )
             repo.save()
 
@@ -48,6 +51,11 @@ def request_starred_repos(request, user):
             repo.description = s_repo['description']
             repo.save()
 
+        # Check if repo url was changed (for some reason)
+        elif repo.url != s_repo['html_url']:
+            repo.url = s_repo['html_url']
+            repo.save()
+
 
 @login_required(redirect_field_name='login')
 def home_populate_repos(request):
@@ -58,10 +66,10 @@ def home_populate_repos(request):
     return redirect('home_view')
 
 
+@login_required(redirect_field_name='login')
 def register_tag(request, repo_id):
     if request.method == 'POST':
-        print("REPO_ID: ", repo_id)
-        instance = Repository.objects.get(repo_id=repo_id)
+        instance = get_object_or_404(Repository, repo_id=repo_id)
         form = RepositoryForm(request.POST or None, instance=instance)
         if form.is_valid():
             repo = form.save(commit=False)
@@ -71,9 +79,16 @@ def register_tag(request, repo_id):
             instance.tags.clear()
     return redirect('home_view')
 
+
+@login_required(redirect_field_name='login')
 def home_view(request):
     user = User.objects.get(username=request.session['github_user'])
     repositories = Repository.objects.filter(user=user).order_by('-created_at_date')
+
+    paginator = Paginator(repositories, 6)
+    page = request.GET.get('p')
+    repositories = paginator.get_page(page)
+
     common_tags = Repository.tags.most_common()[:5]
     context = {
         'repositories': repositories,
@@ -83,11 +98,18 @@ def home_view(request):
 
     return render(request, 'repository/home_view.html', context)
 
+
+@login_required(redirect_field_name='login')
 def tagged(request, slug):
     github_login = request.session['github_user'] if request.session['github_user'] else None
     tag = get_object_or_404(Tag, slug=slug)
-    # Filter posts by tag name  
+    # Filter posts by tag name
     repositories = Repository.objects.filter(tags=tag)
+
+    paginator = Paginator(repositories, 6)
+    page = request.GET.get('p')
+    repositories = paginator.get_page(page)
+
     common_tags = Repository.tags.most_common()[:5]
     context = {
         'tag':tag,

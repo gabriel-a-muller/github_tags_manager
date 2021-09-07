@@ -8,7 +8,5 @@ class RepositoryForm(forms.ModelForm):
         model = Repository
         fields = [
             'tags',
-            # 'repo_id'
         ]
-        # widgets = {'repo_id': HiddenInput()}
         widget=forms.Select(attrs={'onchange': 'submit();'})
