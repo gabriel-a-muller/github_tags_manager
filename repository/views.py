@@ -1,9 +1,8 @@
 import requests
 from django.shortcuts import render, redirect, get_object_or_404
-from django.template.defaultfilters import slugify
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from social_django.models import UserSocialAuth
+from django.contrib.auth.models import User
 from taggit.models import Tag
 
 from . forms import RepositoryForm
@@ -68,35 +67,32 @@ def register_tag(request, repo_id):
             repo = form.save(commit=False)
             repo.save()
             form.save_m2m()
-            print("SAVED!")
         else:
-            print("NOT VALID")
+            instance.tags.clear()
     return redirect('home_view')
 
-def home_view(request, repo_id=None):
-    user = request.user
-    try:
-        github_login = user.social_auth.get(provider='github')
-    except UserSocialAuth.DoesNotExist:
-        github_login = None
+def home_view(request):
+    user = User.objects.get(username=request.session['github_user'])
     repositories = Repository.objects.filter(user=user).order_by('-created_at_date')
-    common_tags = Repository.tags.most_common()[:4]
+    common_tags = Repository.tags.most_common()[:5]
     context = {
         'repositories': repositories,
         'common_tags': common_tags,
-        'github_login': github_login
+        'github_login': user
     }
 
     return render(request, 'repository/home_view.html', context)
 
 def tagged(request, slug):
+    github_login = request.session['github_user'] if request.session['github_user'] else None
     tag = get_object_or_404(Tag, slug=slug)
-    print("SLUG: ", slug)
-    print("TAG: ", tag)
     # Filter posts by tag name  
     repositories = Repository.objects.filter(tags=tag)
+    common_tags = Repository.tags.most_common()[:5]
     context = {
         'tag':tag,
         'repositories': repositories,
+        'github_login': github_login,
+        'common_tags': common_tags,
     }
     return render(request, 'repository/home_view.html', context)

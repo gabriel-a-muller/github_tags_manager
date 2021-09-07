@@ -1,16 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <!-- Load Custom Tags -->
+    {% load repository_extras %}
     <div class="container-github-login">    
     {% include 'parciais/_messages.html' %}
-    <h2>Homepage</h2>
-    <p>Hello <a href="https://github.com/{{ github_login.extra_data.login }}/" target="_blank">{{ github_login.extra_data.login }}</a></p>
+    <h2><a href="{% url 'home_view' %}">Homepage</h2></a
+    <p>Hello <a href="https://github.com/{{ github_login }}/" target="_blank">{{ github_login }}</a></p>
     </div>
     <div class="container pt-5">
         {% if common_tags %}
             <p>Common Tags: 
             {% for mt in common_tags %}
-                <a href="#" class="badge badge-success">{{mt}}</a>
+                <a href="{% url 'tagged' mt.slug %}" class="badge badge-success">{{mt}}</a>
             {% endfor %}
         {% endif %}
         </p>
@@ -20,23 +22,34 @@
                     <div class="cards">
                         <div class="row no-gutters border rounded  flex-md-row mb-4 shadow-sm h-md-250">
                             <div class="col p-4 d-flex flex-column position-static">
-                                <h3 class="my-1"><a href="{% url 'home_view' %}">{{repo.name}}</a></h3>
-                                <div style="display:flex">
+                                <h3 class="my-1"><a href="{% url 'home_view' %}">{{ repo.name }}</a></h3>
+
+                                <div style="display:flex" id="{{ "div-tag-"|addstr:repo.name }}">
                                     {% for tag in repo.tags.all %}
                                     <a href="{% url 'tagged' tag.slug %}" class="mr-1 badge badge-info">#{{ tag }}</a>
                                     {% endfor %}
+
+                                    <button type="button" class="button-tag" onclick="change_display('{{ repo.name }}')">
+                                        <span class="fas fa-plus" aria-hidden="true"></span>
+                                    </button>
                                 </div>
+
+                                <div style="display:none;align-items:center" id="{{ "div-input-tag-"|addstr:repo.name }}">
+                                    <form action="{% url 'register_tag' repo.repo_id %}" method="POST">
+                                    {% csrf_token %}
+                                    <div style="display:flex;align-items:center">
+                                        <div class="form-group">
+                                            <input type="text" data-role="tagsinput" class="form-control" name="tags", value="{{ repo.tags.all|tagstostr }}">
+                                        </div>
+                                        <button type="submit" class="button-flex">Submit</button>
+                                    </div>
+                                    </form>
+                                </div>
+
                                 {% if repo.description != None%}
                                 <p class="mb-auto">{{repo.description}}</p>
                                 {% endif %}
-                                <form action="{% url 'register_tag' repo.repo_id %}" method="POST">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label>Add new Tags</label>
-                                    <input type="text" data-role="tagsinput" class="form-control" name="tags">
-                                </div>
-                                <button type="submit" class="btn btn-primary">Submit</button>
-                                </form>
+
                             </div>
                         </div>
                     </div>       

@@ -4,6 +4,7 @@
 
 <div class="container-github-login">
     <h1 class="github-login-title">Login With GitHub</h1>
+    {% include 'parciais/_messages.html' %}
     <div class="git-hub-inline-group">
         <a href="{% url 'social:begin' 'github' %}" class="btn btn-social-icon btn-github">
             <i class="fab fa-github-square fa-5x"></i></a>

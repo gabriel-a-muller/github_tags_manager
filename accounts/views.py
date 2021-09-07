@@ -8,9 +8,15 @@ from social_django.models import UserSocialAuth
 
 def login(request):
     if request.user.is_authenticated:
+        user = request.user
+        try:
+            request.session['github_user'] = user.social_auth.get(provider='github').extra_data['login']
+        except UserSocialAuth.DoesNotExist:
+            request.session['github_user'] = None
         return redirect('home')
     else:
         return render(request, 'accounts/login.html')
+
 
 @login_required(redirect_field_name='login')
 def logout(request):

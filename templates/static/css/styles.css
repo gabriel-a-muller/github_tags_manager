@@ -63,3 +63,47 @@ body, html {
   
   .button1 {background-color: #4CAF50;} /* Green */
   .button-blue {background-color: #008CBA;} /* Blue */
+
+.row_element {
+    display: flex;
+    height: 100px;
+    align-items: center;
+}
+
+.button-flex {
+    background-color: #4152b3;
+    color: #FFFFFF;
+    border-radius: 4px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    height: 25px;
+    width: 50px;
+    font-size: 10px;
+    margin-top: -18px;
+}
+
+.button-tag{
+    background-color: #4152b3;
+    color: #FFFFFF;
+    border-radius: 4px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    height: 20px;
+    width: 30px;
+    font-size: 10px;
+}
+
+.small-btn {
+    width: 50px;
+    height: 25px;
+}
+
+.medium-btn {
+    width: 70px;
+    height: 30px;
+}
+
+.big-btn {
+    width: 90px;
+    height: 40px;
+}
