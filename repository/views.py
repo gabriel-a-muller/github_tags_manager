@@ -1,4 +1,5 @@
 from django.core import paginator
+from django.http.response import HttpResponseRedirect
 import requests
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -77,11 +78,13 @@ def register_tag(request, repo_id):
             form.save_m2m()
         else:
             instance.tags.clear()
-    return redirect('home_view')
+    return HttpResponseRedirect(request.session['previous_page'])
 
 
 @login_required(redirect_field_name='login')
 def home_view(request):
+    request.session['previous_page'] = request.path_info + "?p=" + request.GET.get("p", '1')
+
     user = User.objects.get(username=request.session['github_user'])
     repositories = Repository.objects.filter(user=user).order_by('-created_at_date')
 
@@ -95,9 +98,8 @@ def home_view(request):
         'common_tags': common_tags,
         'github_login': user
     }
-
     return render(request, 'repository/home_view.html', context)
-
+    
 
 @login_required(redirect_field_name='login')
 def tagged(request, slug):

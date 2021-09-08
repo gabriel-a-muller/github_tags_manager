@@ -61,11 +61,11 @@
                 {% for page in repositories.paginator.page_range %}
                 {% if repositories.number == page %}
                     <li class="page-item active">
-                    <a class="page-link" href="?p={{ page }}&termo={{ request.GET.termo }}">{{page}}</a>
+                    <a class="page-link" href="?p={{ page }}&term={{ request.GET.term }}">{{page}}</a>
                     </li>
                 {% else %}
                     <li class="page-item">
-                    <a class="page-link" href="?p={{ page }}&termo={{ request.GET.termo }}">{{page}}</a>
+                    <a class="page-link" href="?p={{ page }}&term={{ request.GET.term }}">{{page}}</a>
                     </li>
                 {% endif %}
                 {% endfor %}
