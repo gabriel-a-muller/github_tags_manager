@@ -25,6 +25,39 @@ class RepositoryManager(models.Manager):
             )
         return repository
 
+    def get_custom_queryset(self, **kwargs):
+        queryset = self.all().order_by('-created_at_date')
+
+        # Mandatory filter
+        user = kwargs.get('user')
+        # Optional filters
+        name = kwargs.get('name', None)
+        repo_id = kwargs.get('repo_id', None)
+        description = kwargs.get('description', None)
+        created_at_date = kwargs.get('created_at_date', None)
+        url = kwargs.get('url', None)
+        tags = kwargs.get('tags', None)
+
+        # Settings filters
+        queryset = queryset.filter(user=user)
+
+        if name:
+            queryset = queryset.filter(name=name)
+        if repo_id:
+            queryset = queryset.filter(repo_id=repo_id)
+        if description:
+            queryset = queryset.filter(description=description)
+        if created_at_date:
+            queryset = queryset.filter(created_at_date=created_at_date)
+        if url:
+            queryset = queryset.filter(url=url)
+        if tags:
+            queryset = queryset.filter(tags=tags)
+
+        return queryset
+
+
+
 
 class Repository(models.Model):
     name = CharField(max_length=255, verbose_name='Name')

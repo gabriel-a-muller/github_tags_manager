@@ -22,6 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# This is a secret! But don't worry, the app is public for demonstration and configs.
+# On a deploy, this would be secret and ignored. (A new key would be generated)
 SECRET_KEY = 'django-insecure-*%xqb9q8b)$_&fx)vuhs$pi5oe)y()x!5!cl0t41avj)mt-a)g'
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -37,7 +39,6 @@ sys.modules['fontawesome_free'] = __import__('fontawesome-free')
 
 INSTALLED_APPS = [
     'social_django',
-    'authenticator',
     'repository',
     'accounts.apps.AccountsConfig',
     'fontawesome_free',
@@ -87,6 +88,9 @@ WSGI_APPLICATION = 'tags_manager.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+
+# Hey! You are seeing my personal database login!
+# No problem. On a deploy this would be removed and ignored.
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -165,14 +169,10 @@ SOCIAL_AUTH_GITHUB_SECRET = '92803c4e093b1da9399539ad24b0885bf6059f6f'
 
 SOCIAL_AUTH_GITHUB_SCOPE = ['user:email', 'repo']
 
-# LOGIN_REDIRECT_URL = '/'
-# LOGOUT_REDIRECT_URL = '/'
-
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
-
 
 SOCIAL_AUTH_PIPELINE = (
   'social_core.pipeline.social_auth.social_details',
@@ -199,3 +199,8 @@ SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 # DJANGO-TAGGIT!
 
 TAGGIT_FORCE_LOWERCASE = True
+
+
+# NUMBER OF CARDS PER PAGE
+
+REPO_PAGE_ELEMENTS_NUMBER = 6

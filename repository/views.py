@@ -6,10 +6,22 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.db.models import Q
 from taggit.models import Tag
 
 from . forms import RepositoryForm
 from . models import Repository
+from tags_manager import settings
+
+
+def get_user(request):
+    return User.objects.get(username=request.session['github_user'])
+
+def paginator_factory(repositories, request):
+    paginator = Paginator(repositories, settings.REPO_PAGE_ELEMENTS_NUMBER)
+    page = request.GET.get('p')
+    repositories = paginator.get_page(page)
+    return repositories
 
 def request_starred_repos(request, user):
     try:
@@ -85,12 +97,10 @@ def register_tag(request, repo_id):
 def home_view(request):
     request.session['previous_page'] = request.path_info + "?p=" + request.GET.get("p", '1')
 
-    user = User.objects.get(username=request.session['github_user'])
-    repositories = Repository.objects.filter(user=user).order_by('-created_at_date')
+    user = get_user(request)
+    repositories = Repository.objects.get_custom_queryset(user=user)
 
-    paginator = Paginator(repositories, 6)
-    page = request.GET.get('p')
-    repositories = paginator.get_page(page)
+    repositories = paginator_factory(repositories, request)
 
     common_tags = Repository.tags.most_common()[:5]
     context = {
@@ -99,19 +109,16 @@ def home_view(request):
         'github_login': user
     }
     return render(request, 'repository/home_view.html', context)
-    
+
 
 @login_required(redirect_field_name='login')
 def tagged(request, slug):
-    user = User.objects.get(username=request.session['github_user'])
+    user = get_user(request)
     tag = get_object_or_404(Tag, slug=slug)
     # Filter posts by tag name
-    repositories = Repository.objects.filter(
-        tags=tag, user=user).order_by('-created_at_date')
+    repositories = Repository.objects.get_custom_queryset(user=user, tags=tag)
 
-    paginator = Paginator(repositories, 6)
-    page = request.GET.get('p')
-    repositories = paginator.get_page(page)
+    repositories = paginator_factory(repositories, request)
 
     common_tags = Repository.tags.most_common()[:5]
     context = {
@@ -126,24 +133,21 @@ def tagged(request, slug):
 @login_required(redirect_field_name='login')
 def search(request):
     term = request.GET.get('term')
-    user = User.objects.get(username=request.session['github_user'])
+    user = get_user(request)
 
     try:
         tag = Tag.objects.get(name__icontains=str(term))
     except:
         tag = None
 
-    repositories = Repository.objects.filter(
-        user=user).order_by('-created_at_date')
+    repositories = Repository.objects.get_custom_queryset(user=user)
 
     if tag:
-        repositories = repositories.filter(tags=tag)
+        repositories = repositories.filter(Q(tags=tag) | Q(name__icontains=term))
     else:
         repositories = repositories.filter(name__icontains=term)
 
-    paginator = Paginator(repositories, 6)
-    page = request.GET.get('p')
-    repositories = paginator.get_page(page)
+    repositories = paginator_factory(repositories, request)
 
     common_tags = Repository.tags.most_common()[:5]
     context = {
