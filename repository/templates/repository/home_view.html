@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Load Custom Tags -->
+    {% load repository_extras %}
+    <div class="container-github-login">  
+        {% include 'parciais/_messages.html' %}
+
+        <h2><a href="{% url 'home' %}">Your Starred Repos</h2></a
+        <p><a href="https://github.com/{{ github_login }}/" target="_blank">{{ github_login }}</a></p>
+    </div>
+
+    <div class="container pt-5">
+        {% if common_tags %}
+            <p>Common Tags: 
+            {% for mt in common_tags %}
+                <a href="{% url 'tagged' mt.slug %}" class="badge badge-info">{{mt}}</a>
+            {% endfor %}
+        {% endif %}
+        </p>
+        <!-- Load Repos -->
+        <div class="row mb-2 repositories">
+            {% for repo in repositories %}
+            <div class="col-md-6">
+                <div class="cards" style="background-color: #fefae0">
+                    <div class="row no-gutters border rounded  flex-md-row mb-4 shadow-sm h-md-250">
+                        <div class="col p-4 d-flex flex-column position-static">
+                            <h3 class="my-1"><a href="{{repo.url}}" target="_blank" >{{ repo.name }}</a></h3>
+
+                            <div style="display:flex" id="{{ "div-tag-"|addstr:repo.name }}">
+                                {% for tag in repo.tags.all %}
+                                <a href="{% url 'tagged' tag.slug %}" class="mr-1 badge badge-info">#{{ tag }}</a>
+                                {% endfor %}
+
+                                <button type="button" class="button-tag" onclick="change_display('{{ repo.name }}')">
+                                    <span class="fas fa-plus" aria-hidden="true"></span>
+                                </button>
+                            </div>
+
+                            <div style="display:none;align-items:center" id="{{ "div-input-tag-"|addstr:repo.name }}">
+                                <form action="{% url 'register_tag' repo.repo_id %}" method="POST">
+                                {% csrf_token %}
+                                <div style="display:flex;align-items:center">
+                                    <div class="form-group">
+                                        <input type="text" data-role="tagsinput" class="form-control" name="tags", value="{{ repo.tags.all|tagstostr }}">
+                                    </div>
+                                    <button type="submit" class="button-flex">Submit</button>
+                                </div>
+                                </form>
+                            </div>
+
+                            {% if repo.description != None%}
+                            <p class="mb-auto">{{repo.description}}</p>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>       
+            </div>
+            {% endfor %}
+        </div>
+
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% for page in repositories.paginator.page_range %}
+                {% if repositories.number == page %}
+                    <li class="page-item active">
+                    <a class="page-link" href="?p={{ page }}&term={{ request.GET.term }}">{{page}}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                    <a class="page-link" href="?p={{ page }}&term={{ request.GET.term }}">{{page}}</a>
+                    </li>
+                {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+    </div>
+
+{% endblock content %}            
